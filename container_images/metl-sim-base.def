@@ -1,0 +1,27 @@
+Bootstrap: docker
+From: continuumio/anaconda3:2024.06-1
+
+%setup
+  ## Create the mount points that are required by the build process.
+  mkdir "${APPTAINER_ROOTFS}"/rosetta-installers
+
+%post
+  ## Install metl-sim.
+  git clone --branch v1.0 --depth 1 https://github.com/gitter-lab/metl-sim.git /metl-sim
+  rm -rf /metl-sim/.git
+  conda env create -f /metl-sim/setup/clean_pdb_env.yml
+  conda env create -f /metl-sim/setup/metl-sim_env.yml
+
+  ## Install Rosetta.
+  (cd / && tar zxvf /rosetta-installers/rosetta_bin_linux_3.13_bundle.tgz)
+
+  conda run -n metl-sim python3 /metl-sim/code/rosetta_minimal.py \
+      --gen_distribution \
+      --rosetta_main_dir=/rosetta_bin_linux_2021.16.61629_bundle/main \
+      --out_dir=/rosetta
+
+  rm -rf /rosetta_bin_linux_2021.16.61629_bundle
+
+%runscript
+  ## Run the specified command within the metl-sim environment.
+  conda run -n metl-sim "$@"

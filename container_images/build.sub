@@ -1,0 +1,36 @@
+# build.sub
+# Based on: https://chtc.cs.wisc.edu/uw-research-computing/apptainer-htc.html
+# Interactively build Apptainer container images on CHTC.
+
+
+# --------------------------------------------------------------------------
+# Build-specific configuration.
+
+# List the files required by the build process.
+transfer_input_files = \
+    Makefile \
+    , metl-sim-base.def \
+
+# Assume that build products will be copied to /staging by hand.
+transfer_output_files =
+
+# Request enough resources for the build to succeed.
+request_cpus = 4
+request_memory = 16GB
+request_disk = 80GB
+
+
+# --------------------------------------------------------------------------
+# Build-agnostic configuration.
+
+universe = vanilla
+executable = /usr/bin/make
+
+requirements = (HasCHTCStaging == true)
++IsBuildJob = true
+
+log = build.log
+output = build.out
+error = build.err
+
+queue
